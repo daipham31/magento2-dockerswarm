@@ -15,6 +15,8 @@ services:
 
   nginx:
     image: nginx:latest
+    ports:
+      - '80:80'
     volumes:
       - "./config/nginx/conf.d:/etc/nginx/conf.d"
       - "/var/www/magento2:/var/www/magento2"
@@ -47,10 +49,8 @@ services:
   
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    restart: always
     ports:
-      - '8088:80'
+      - '8080:80'
     environment:
       PMA_HOST: mysql
     networks:
