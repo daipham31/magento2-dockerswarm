@@ -1,0 +1,61 @@
+version: '3.5'
+networks:
+  magento2:
+    external: true
+    driver: overlay
+
+services:
+  php:
+    image: php74
+    volumes:
+      - "./config/php/conf.d/:/usr/local/etc/php/conf.d/"
+      - "/var/www/magento2:/var/www/magento2"
+    networks:
+      - "magento2"
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - "./config/nginx/conf.d:/etc/nginx/conf.d"
+      - "/var/www/magento2:/var/www/magento2"
+    networks:
+      - "magento2"
+
+  elasticsearch:
+    image: elasticsearch:7.6.1
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - "./data/elasticsearch:/usr/share/elasticsearch/data"
+    networks:
+      - "magento2"
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "false"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: magento2
+    volumes:
+      - "./data/mysql:/var/lib/mysql"
+      - "./config/mysql/conf.d/:/etc/mysql/conf.d"
+    networks:
+      - "magento2"
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - '8088:80'
+    environment:
+      PMA_HOST: mysql
+    networks:
+        - "magento2"
+
+
+      
+
